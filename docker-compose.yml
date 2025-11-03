@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  namegen-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: namegen-api:latest
+    container_name: namegen-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    command: ["-key", "${API_KEY:-mysecretkey}"]
+    environment:
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/origins"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # 如果需要持久化数据，可以添加以下卷
+    # volumes:
+    #   - ./data:/app/data 
