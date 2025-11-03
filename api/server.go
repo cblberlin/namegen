@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ironarachne/namegen"
 )
@@ -24,64 +23,12 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// 配置
-var (
-	RequireAPIKey bool   = false
-	APIKey        string = ""
-)
-
-// SetAPIKey 设置API密钥认证
-func SetAPIKey(apiKey string) {
-	if apiKey != "" {
-		RequireAPIKey = true
-		APIKey = apiKey
-	}
-}
-
 // StartServer 启动API服务器
 func StartServer(port string) error {
-	http.HandleFunc("/api/v1/names", apiKeyMiddleware(generateNameHandler))
-	http.HandleFunc("/api/v1/origins", apiKeyMiddleware(listOriginsHandler))
+	http.HandleFunc("/api/v1/names", generateNameHandler)
+	http.HandleFunc("/api/v1/origins", listOriginsHandler)
 
 	return http.ListenAndServe(":"+port, nil)
-}
-
-// API密钥中间件
-func apiKeyMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// 如果不需要API密钥，直接通过
-		if !RequireAPIKey {
-			next(w, r)
-			return
-		}
-
-		// 从请求中获取API密钥
-		var providedKey string
-		
-		// 首先尝试从Bearer令牌获取
-		authHeader := r.Header.Get("Authorization")
-		if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
-			providedKey = strings.TrimPrefix(authHeader, "Bearer ")
-		}
-		
-		// 如果没有Bearer令牌，尝试从URL参数或其他头部获取
-		if providedKey == "" {
-			providedKey = r.URL.Query().Get("api_key")
-		}
-		if providedKey == "" {
-			providedKey = r.Header.Get("X-API-Key")
-		}
-
-		// 验证API密钥
-		if providedKey != APIKey {
-			w.Header().Set("WWW-Authenticate", "Bearer realm=\"namegen API\"")
-			sendErrorResponse(w, "无效的API密钥或未提供API密钥", http.StatusUnauthorized)
-			return
-		}
-
-		// API密钥有效，继续处理请求
-		next(w, r)
-	}
 }
 
 // 名字生成处理函数

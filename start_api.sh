@@ -1,9 +1,8 @@
 #!/bin/bash
 # 名字生成API服务启动脚本（使用nohup）
 
-# 设置API密钥
-API_KEY=${1:-"mysecretkey"}
-PORT=${2:-"8080"}
+# 设置端口
+PORT=${1:-"8080"}
 
 # 确保有执行权限
 chmod +x namegen-api
@@ -12,7 +11,7 @@ chmod +x namegen-api
 pkill -f namegen-api || true
 
 # 使用nohup在后台启动服务
-nohup ./namegen-api -key "$API_KEY" -port "$PORT" > namegen-api.log 2>&1 &
+nohup ./namegen-api -port "$PORT" > namegen-api.log 2>&1 &
 
 # 获取进程ID
 PID=$!
@@ -21,7 +20,6 @@ PID=$!
 if ps -p $PID > /dev/null; then
     echo "名字生成API服务已成功启动，进程ID：$PID"
     echo "API监听端口：$PORT"
-    echo "API密钥：$API_KEY"
     echo "日志文件：$(pwd)/namegen-api.log"
 else
     echo "服务启动失败，请检查日志文件：$(pwd)/namegen-api.log"

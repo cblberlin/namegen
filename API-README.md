@@ -19,31 +19,7 @@ go build -o namegen-api ./cmd/api
 
 # Specify custom port
 ./namegen-api -port 3000
-
-# Enable API key authentication (restrict API access)
-./namegen-api -key your_secret_key
 ```
-
-## API Authentication
-
-If the server has API key authentication enabled, you can provide the API key in one of three ways:
-
-1. **Bearer Token Authentication (Recommended)**:
-   ```
-   Authorization: Bearer your_secret_key
-   ```
-
-2. **Custom Header**:
-   ```
-   X-API-Key: your_secret_key
-   ```
-
-3. **URL Parameter**:
-   ```
-   ?api_key=your_secret_key
-   ```
-
-The Bearer Token authentication method is recommended as it's the standard practice for REST APIs.
 
 ## API Documentation
 
@@ -52,11 +28,6 @@ The Bearer Token authentication method is recommended as it's the standard pract
 **Request:**
 ```
 GET /api/v1/names
-```
-
-**Headers (if API key is enabled):**
-```
-Authorization: Bearer your_secret_key
 ```
 
 **Parameters:**
@@ -72,7 +43,6 @@ Authorization: Bearer your_secret_key
 **Example Request:**
 ```
 GET /api/v1/names?origin=chinese&gender=female&count=2
-Authorization: Bearer your_secret_key
 ```
 
 **Response:**
@@ -102,7 +72,6 @@ If requesting only one name (default or count=1), a single object is returned in
 **Request:**
 ```
 GET /api/v1/origins
-Authorization: Bearer your_secret_key
 ```
 
 **Response:**

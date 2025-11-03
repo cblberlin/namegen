@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-    command: ["-key", "${API_KEY:-mysecretkey}"]
+    command: []
     environment:
       - TZ=Asia/Shanghai
     healthcheck:

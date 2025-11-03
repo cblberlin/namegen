@@ -1,9 +1,8 @@
 #!/bin/bash
 # 编译并启动名字生成API服务
 
-# 设置API密钥和端口
-API_KEY=${1:-"mysecretkey"}
-PORT=${2:-"8080"}
+# 设置端口
+PORT=${1:-"8080"}
 
 # 确保Go环境正确
 echo "检查Go版本..."
@@ -29,7 +28,7 @@ pkill -f namegen-api || true
 
 # 使用nohup在后台启动服务
 echo "启动API服务..."
-nohup ./namegen-api -key "$API_KEY" -port "$PORT" > namegen-api.log 2>&1 &
+nohup ./namegen-api -port "$PORT" > namegen-api.log 2>&1 &
 
 # 获取进程ID
 PID=$!
@@ -39,7 +38,6 @@ sleep 2
 if ps -p $PID > /dev/null; then
     echo "名字生成API服务已成功启动，进程ID：$PID"
     echo "API监听端口：$PORT"
-    echo "API密钥：$API_KEY"
     echo "日志文件：$(pwd)/namegen-api.log"
 else
     echo "服务启动失败，请检查日志文件：$(pwd)/namegen-api.log"

@@ -4,9 +4,8 @@
 import requests
 import sys
 
-# 设置API地址和密钥
+# 设置API地址
 API_URL = "http://51.210.103.207:8080/api/v1/names"
-API_KEY = "ET4crRBKQJ8gFVcqhsKcjL66ePq9sE6qMNX1ynCg2ss="
 
 # 要测试的origin列表
 ORIGINS = [
@@ -17,7 +16,6 @@ ORIGINS = [
 def test_origin(origin):
     url = f"{API_URL}/api/v1/names"
     headers = {
-        "Authorization": f"Bearer {API_KEY}",
         "Accept": "application/json"
     }
     params = {
