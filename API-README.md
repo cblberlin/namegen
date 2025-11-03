@@ -94,14 +94,14 @@ GET /api/v1/origins
 ### Using curl to Get Names
 
 ```bash
-# Using Bearer Token (recommended)
-curl -H "Authorization: Bearer your_secret_key" "http://localhost:8080/api/v1/names?origin=chinese&gender=male&count=5"
+# Get 5 Chinese male names
+curl "http://localhost:8080/api/v1/names?origin=chinese&gender=male&count=5"
 
-# Using X-API-Key header
-curl -H "X-API-Key: your_secret_key" "http://localhost:8080/api/v1/names?origin=russian&mode=firstname"
+# Get Russian first name
+curl "http://localhost:8080/api/v1/names?origin=russian&mode=firstname"
 
-# Passing API key via URL parameter
-curl "http://localhost:8080/api/v1/names?origin=japanese&count=3&api_key=your_secret_key"
+# Get 3 Japanese names
+curl "http://localhost:8080/api/v1/names?origin=japanese&count=3"
 ```
 
 ### Programmatic API Calls
@@ -110,46 +110,33 @@ curl "http://localhost:8080/api/v1/names?origin=japanese&count=3&api_key=your_se
 ```python
 import requests
 
-# API key
-api_key = "your_secret_key"
-
-# Method 1: Using Bearer Token (recommended)
-headers = {"Authorization": f"Bearer {api_key}"}
+# Get 5 Japanese names
 response = requests.get(
-    "http://localhost:8080/api/v1/names?origin=japanese&count=5", 
-    headers=headers
+    "http://localhost:8080/api/v1/names?origin=japanese&count=5"
 )
 names = response.json()
 for name in names:
     print(f"{name['name']} - {name['gender']}")
 
-# Method 2: Using X-API-Key header
-headers = {"X-API-Key": api_key}
+# Get French female name
 response = requests.get(
-    "http://localhost:8080/api/v1/names?origin=french&gender=female", 
-    headers=headers
+    "http://localhost:8080/api/v1/names?origin=french&gender=female"
 )
+name = response.json()
+print(f"{name['name']}")
 
-# Method 3: Via URL parameter
+# Get Chinese names
 params = {
     "origin": "chinese", 
-    "count": 5,
-    "api_key": api_key
+    "count": 5
 }
 response = requests.get("http://localhost:8080/api/v1/names", params=params)
 ```
 
 #### JavaScript Example
 ```javascript
-// Get French female names
-const apiKey = "your_secret_key";
-
-// Method 1: Using Bearer Token (recommended)
-fetch("http://localhost:8080/api/v1/names?origin=french&gender=female", {
-  headers: {
-    "Authorization": `Bearer ${apiKey}`
-  }
-})
+// Get French female name
+fetch("http://localhost:8080/api/v1/names?origin=french&gender=female")
   .then(response => response.json())
   .then(data => {
     console.log(`Name: ${data.name}`);
@@ -158,17 +145,13 @@ fetch("http://localhost:8080/api/v1/names?origin=french&gender=female", {
     console.log(`Last Name: ${data.last_name}`);
   });
 
-// Method 2: Using X-API-Key header
-fetch("http://localhost:8080/api/v1/names?origin=chinese&gender=male&count=3", {
-  headers: {
-    "X-API-Key": apiKey
-  }
-})
+// Get Chinese male names
+fetch("http://localhost:8080/api/v1/names?origin=chinese&gender=male&count=3")
   .then(response => response.json())
   .then(data => console.log(data));
 
-// Method 3: Via URL parameter
-fetch(`http://localhost:8080/api/v1/names?origin=english&count=2&api_key=${apiKey}`)
+// Get English names
+fetch("http://localhost:8080/api/v1/names?origin=english&count=2")
   .then(response => response.json())
   .then(data => console.log(data));
 ```
@@ -182,7 +165,7 @@ fetch(`http://localhost:8080/api/v1/names?origin=english&count=2&api_key=${apiKe
 docker build -t namegen-api .
 
 # Run container
-docker run -d -p 8080:8080 --name namegen namegen-api -key your_secret_key
+docker run -d -p 8080:8080 --name namegen namegen-api
 ```
 
 ### Direct Deployment
@@ -192,7 +175,7 @@ docker run -d -p 8080:8080 --name namegen namegen-api -key your_secret_key
 go build -o namegen-api ./cmd/api
 
 # Run service in background
-nohup ./namegen-api -key your_secret_key > namegen.log 2>&1 &
+nohup ./namegen-api > namegen.log 2>&1 &
 
 # Set up as system service (using systemd)
 sudo nano /etc/systemd/system/namegen.service
@@ -204,7 +187,7 @@ sudo nano /etc/systemd/system/namegen.service
 # [Service]
 # User=youruser
 # WorkingDirectory=/path/to/namegen
-# ExecStart=/path/to/namegen/namegen-api -key your_secret_key
+# ExecStart=/path/to/namegen/namegen-api
 # Restart=on-failure
 #
 # [Install]

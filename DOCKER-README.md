@@ -16,25 +16,18 @@
    cd namegen-api
    ```
 
-2. 使用自定义API密钥启动服务
+2. 启动服务
    ```bash
-   # 设置安全的API密钥（替换YOUR_SECRET_KEY为您自己的密钥）
-   export API_KEY=YOUR_SECRET_KEY
-   
    # 构建并启动容器
    docker-compose up -d
    ```
 
 3. 验证服务是否正常运行
    ```bash
-   curl -H "Authorization: Bearer YOUR_SECRET_KEY" http://localhost:8080/api/v1/origins
+   curl http://localhost:8080/api/v1/origins
    ```
 
 ## 配置选项
-
-### 环境变量
-
-- `API_KEY`: API认证密钥（默认为"mysecretkey"）
 
 ### 自定义端口
 
