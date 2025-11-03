@@ -69,35 +69,14 @@ volumes:
 - `mode`: 名字生成模式（full(完整名字), firstname(仅名), lastname(仅姓)）
 - `normalize`: 是否将特殊字符标准化为基本拉丁字母（false, true(默认)）
 
-### 认证
-
-所有API请求都需要通过以下方式之一提供API密钥：
-
-1. Bearer令牌（推荐）
-   ```
-   Authorization: Bearer YOUR_API_KEY
-   ```
-
-2. 查询参数
-   ```
-   ?api_key=YOUR_API_KEY
-   ```
-
-3. 自定义头部
-   ```
-   X-API-Key: YOUR_API_KEY
-   ```
-
 ### 示例
 
 ```bash
 # 生成5个法语男性名字
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://localhost:8080/api/v1/names?origin=french&gender=male&count=5"
+curl "http://localhost:8080/api/v1/names?origin=french&gender=male&count=5"
 
 # 生成一个俄语女性名字（保留特殊字符）
-curl -H "Authorization: Bearer YOUR_API_KEY" \
-  "http://localhost:8080/api/v1/names?origin=russian&gender=female&normalize=false"
+curl "http://localhost:8080/api/v1/names?origin=russian&gender=female&normalize=false"
 ```
 
 ## 健康检查
