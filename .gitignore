@@ -22,3 +22,5 @@ vendor/
 
 .env
 .env.example
+
+namegen-api
