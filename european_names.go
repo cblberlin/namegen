@@ -23,6 +23,7 @@ func init() {
 func loadEuropeanNames() (maleFirstNames, femaleFirstNames, lastNames []string) {
 	maleFirstNames = make([]string, 0)
 	femaleFirstNames = make([]string, 0)
+	neutralFirstNames := make([]string, 0)
 	lastNameSet := make(map[string]bool)
 	lastNames = make([]string, 0)
 
@@ -31,18 +32,28 @@ func loadEuropeanNames() (maleFirstNames, femaleFirstNames, lastNames []string) 
 	baseDir := filepath.Dir(filename)
 
 	// 读取女性名字文件
-	femaleFile := filepath.Join(baseDir, "欧洲女性名（名+姓）.txt")
+	femaleFile := filepath.Join(baseDir, "欧洲女性名.txt")
 	if err := readNameFile(femaleFile, &femaleFirstNames, &lastNameSet); err != nil {
 		// 如果文件不存在，返回空切片
 		return
 	}
 
 	// 读取男性名字文件
-	maleFile := filepath.Join(baseDir, "欧洲男性名（名+姓）.txt")
+	maleFile := filepath.Join(baseDir, "欧洲男性名.txt")
 	if err := readNameFile(maleFile, &maleFirstNames, &lastNameSet); err != nil {
 		// 如果文件不存在，返回空切片
 		return
 	}
+
+	// 读取中性名字文件（中性名可以同时用于男性和女性）
+	neutralFile := filepath.Join(baseDir, "欧洲中性名.txt")
+	if err := readNameFile(neutralFile, &neutralFirstNames, &lastNameSet); err != nil {
+		// 如果文件不存在，继续执行（中性名文件是可选的）
+	}
+
+	// 将中性名同时加入到男性和女性名字列表中
+	maleFirstNames = append(maleFirstNames, neutralFirstNames...)
+	femaleFirstNames = append(femaleFirstNames, neutralFirstNames...)
 
 	// 将去重后的姓转换为切片
 	for lastName := range lastNameSet {
