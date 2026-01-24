@@ -265,7 +265,7 @@ func generateFullProfileHandlerGin(c *gin.Context) {
 		email, password, lastName, firstName, country, birthDate)
 
 	// 返回纯文本格式（按照用户要求）
-	c.Header("Content-Type", "text/plain")
+	c.Header("Content-Type", "text/plain; charset=utf-8")
 	c.String(http.StatusOK, profileStr)
 }
 
@@ -353,6 +353,6 @@ func generateProfileSimpleHandlerGin(c *gin.Context) {
 		emailPrefix, domain, password, lastName, firstName, country, birthDate)
 
 	// 返回纯文本格式（按照用户Python代码的要求）
-	c.Header("Content-Type", "text/plain")
+	c.Header("Content-Type", "text/plain; charset=utf-8")
 	c.String(http.StatusOK, profileStr)
 }
