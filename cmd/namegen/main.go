@@ -24,44 +24,7 @@ func main() {
 	flag.Parse()
 
 	if *list {
-		nameLists := []string{
-			"anglosaxon",
-			"dutch",
-			"dwarf",
-			"elf",
-			"english",
-			"estonian",
-			"fantasy",
-			"finnish",
-			"french",
-			"german",
-			"greek",
-			"hindu",
-			"indonesian",
-			"irish",
-			"italian",
-			"japanese",
-			"korean",
-			"mayan",
-			"mongolian",
-			"nepalese",
-			"norwegian",
-			"portuguese",
-			"russian",
-			"spanish",
-			"swedish",
-			"thai",
-			"ukrainian",
-			"somalia",
-			"arabic",
-			"hawaiian",
-      		"turkish",
-			"serbian",
-			"nigerian",
-			"polish",
-			"chinese",
-			"european",
-		}
+		nameLists := namegen.GetSupportedOrigins()
 		fmt.Printf("Available name lists: \n%s\n\n", strings.Join(nameLists, "\n"))
 		os.Exit(0)
 	}

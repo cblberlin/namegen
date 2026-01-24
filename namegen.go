@@ -7,6 +7,20 @@ type NameGenerator struct {
 	LastNames        []string
 }
 
+// GetSupportedOrigins returns a list of all supported name origins
+func GetSupportedOrigins() []string {
+	return []string{
+		"anglosaxon", "dutch", "dwarf", "elf", "english",
+		"estonian", "fantasy", "finnish", "french", "german",
+		"greek", "hindu", "indonesian", "irish", "italian",
+		"japanese", "korean", "mayan", "mongolian", "nepalese",
+		"norwegian", "portuguese", "russian", "spanish", "swedish",
+		"thai", "ukrainian", "somalia", "arabic", "hawaiian",
+		"turkish", "serbian", "nigerian", "polish", "chinese",
+		"european",
+	}
+}
+
 // NameGeneratorFromType sets up types of names
 func NameGeneratorFromType(origin, gender string) NameGenerator {
 	nameGenerators := map[string]NameGenerator{
@@ -17,8 +31,8 @@ func NameGeneratorFromType(origin, gender string) NameGenerator {
 		"english":    {englishMaleFirstNames, englishFemaleFirstNames, englishLastNames},
 		"estonian":   {estonianMaleFirstNames, estonianFemaleFirstNames, estonianLastNames},
 		"fantasy":    {fantasyMaleFirstNames, fantasyFemaleFirstNames, fantasyLastNames},
-		"finnish":    {finnishMaleFistNames, finnishFemaleFirstNames, finnishLastNames},
-		"french":     {frenchMaleFistNames, frenchFemaleFirstNames, frenchLastNames},
+		"finnish":    {finnishMaleFirstNames, finnishFemaleFirstNames, finnishLastNames},
+		"french":     {frenchMaleFirstNames, frenchFemaleFirstNames, frenchLastNames},
 		"german":     {germanMaleFirstNames, germanFemaleFirstNames, germanLastNames},
 		"greek":      {greekMaleFirstNames, greekFemaleFirstNames, greekLastNames},
 		"hindu":      {hinduMaleFirstNames, hinduFemaleFirstNames, hinduLastNames},

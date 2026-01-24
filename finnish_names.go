@@ -1,7 +1,7 @@
 package namegen
 
 var (
-	finnishMaleFistNames = []string{
+	finnishMaleFirstNames = []string{
 		"Juhani",
 		"Olavi",
 		"Antero",
