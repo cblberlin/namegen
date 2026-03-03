@@ -333,8 +333,9 @@ func generateProfileSimpleHandlerGin(c *gin.Context) {
 	if err != nil || count < 1 {
 		count = 1
 	}
-	if count > 100 { // 设置上限，防止恶意请求
-		count = 100
+	const maxCount = 1000
+	if count > maxCount { // 设置上限，防止恶意请求
+		count = maxCount
 	}
 
 	generator := namegen.NameGeneratorFromType(origin, gender)

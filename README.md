@@ -444,3 +444,7 @@ GET /api/v1/origins
 - elf - 精灵名字
 - fantasy - 奇幻世界名字
 - european - 欧洲中性名字
+
+
+make build-api
+sudo systemctl restart namegen-api
