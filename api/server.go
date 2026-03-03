@@ -333,7 +333,7 @@ func generateProfileSimpleHandlerGin(c *gin.Context) {
 	if err != nil || count < 1 {
 		count = 1
 	}
-	const maxCount = 1000
+	const maxCount = 10000
 	if count > maxCount { // 设置上限，防止恶意请求
 		count = maxCount
 	}
