@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ironarachne/namegen"
@@ -325,34 +326,50 @@ func generateProfileSimpleHandlerGin(c *gin.Context) {
 	gender := c.DefaultQuery("gender", "both")
 	origin := c.DefaultQuery("origin", "chinese")
 	domain := c.DefaultQuery("domain", "outlook.com")
+	
+	// 1. 处理 count 参数
+	countStr := c.DefaultQuery("count", "1")
+	count, err := strconv.Atoi(countStr)
+	if err != nil || count < 1 {
+		count = 1
+	}
+	if count > 100 { // 设置上限，防止恶意请求
+		count = 100
+	}
 
-	// 生成姓名
 	generator := namegen.NameGeneratorFromType(origin, gender)
-	firstName, err1 := generator.FirstName(gender)
-	lastName, err2 := generator.LastName()
+	var results []string
 
-	if err1 != nil || err2 != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "无法生成名字"})
-		return
+	// 2. 循环生成
+	for i := 0; i < count; i++ {
+		firstName, err1 := generator.FirstName(gender)
+		lastName, err2 := generator.LastName()
+
+		if err1 != nil || err2 != nil {
+			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "无法生成名字"})
+			return
+		}
+
+		// 生成邮箱前缀和生日
+		emailPrefix, birthDate := generateEmailPrefix(firstName, lastName)
+
+		// 生成密码
+		password := generatePassword(12)
+
+		// 获取国家名称
+		country := COUNTRY_MAPPING[origin]
+		if country == "" {
+			country = origin
+		}
+
+		// 按照指定格式构建单条 profile 字符串
+		profileStr := fmt.Sprintf("%s@%s----%s----%s----%s----%s----%s",
+			emailPrefix, domain, password, lastName, firstName, country, birthDate)
+		
+		results = append(results, profileStr)
 	}
 
-	// 生成邮箱前缀和生日
-	emailPrefix, birthDate := generateEmailPrefix(firstName, lastName)
-
-	// 生成密码
-	password := generatePassword(12)
-
-	// 获取国家名称
-	country := COUNTRY_MAPPING[origin]
-	if country == "" {
-		country = origin
-	}
-
-	// 按照指定格式构建profile字符串
-	profileStr := fmt.Sprintf("%s@%s----%s----%s----%s----%s----%s",
-		emailPrefix, domain, password, lastName, firstName, country, birthDate)
-
-	// 返回纯文本格式（按照用户Python代码的要求）
+	// 3. 将结果用换行符拼接并返回纯文本
 	c.Header("Content-Type", "text/plain; charset=utf-8")
-	c.String(http.StatusOK, profileStr)
+	c.String(http.StatusOK, strings.Join(results, "\n"))
 }
