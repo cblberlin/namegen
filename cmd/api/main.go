@@ -19,8 +19,6 @@ func main() {
 	if *randomSeed == "none" {
 		rand.Seed(time.Now().UnixNano())
 	} else {
-		// namegen.RandomSeedFromString(*randomSeed)
-		// TODO: 如果需要固定种子可以取消注释上面的代码
 		rand.Seed(time.Now().UnixNano())
 	}
 
