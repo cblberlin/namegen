@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	crand "crypto/rand" // 设置别名：用于生成安全密码
@@ -49,8 +49,15 @@ func cleanEmailPrefix(s string) string {
 	return s
 }
 
+func GetCountryName(origin string) string {
+	if name, ok := COUNTRY_MAPPING[origin]; ok {
+		return name
+	}
+	return origin // 找不到匹配时返回原名
+}
+
 // generateEmailPrefix 生成复杂的邮箱前缀
-func generateEmailPrefix(firstName, lastName, origin string) (string, string) {
+func GenerateEmailPrefix(firstName, lastName, origin string) (string, string) {
 	// 1. 先进行拉丁化与基础清理
 	formalFn := strings.ToLower(cleanName(NormalizeToBasicLatin(firstName)))
 	ln := strings.ToLower(cleanName(NormalizeToBasicLatin(lastName)))
@@ -123,7 +130,7 @@ func generateEmailPrefix(firstName, lastName, origin string) (string, string) {
 }
 
 // generatePassword 生成安全的随机密码
-func generatePassword(length int) string {
+func GeneratePassword(length int) string {
 	if length <= 0 {
 		length = 12
 	}

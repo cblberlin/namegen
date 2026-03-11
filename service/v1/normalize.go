@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	anyascii "github.com/anyascii/go"
