@@ -8,9 +8,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"regexp"
 
 	"github.com/ironarachne/namegen"
-	v1service "github.com/ironarachne/namegen/service/v1" // 引用 V1 的国家映射
+	v1service "github.com/ironarachne/namegen/service/v1" // 引用 V1
 )
 
 var (
@@ -51,11 +52,11 @@ func loadFile(path string) []string {
 }
 
 // -------------------------
-// 工具函数 (完美复刻 Python 工具库)
+// 工具函数 
 // -------------------------
 
 func randSep() string {
-	seps := []string{"", "", "", ".", "_", "-"}
+	seps := []string{".", "_", "-"}
 	return seps[rand.Intn(len(seps))]
 }
 
@@ -67,7 +68,6 @@ func randDigits(n int) string {
 	return sb.String()
 }
 
-// 对应 Python 的 rand_short_id (仅小写+数字)
 func randShortID(n int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
@@ -77,7 +77,6 @@ func randShortID(n int) string {
 	return string(b)
 }
 
-// 对应 Python 的 generate_password (大小写+数字)
 func generatePassword(minLen, maxLen int) string {
 	n := rand.Intn(maxLen-minLen+1) + minLen
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -88,28 +87,27 @@ func generatePassword(minLen, maxLen int) string {
 	return string(b)
 }
 
-// 安全截取字符串，模拟 Python 的切片 s[:max_len]
 func safeSlice(s string, length int) string {
-	if len(s) > length {
-		return s[:length]
+	// 转换为 rune 切片处理，防止截断多字节字符时发生 panic
+	runes := []rune(s)
+	if len(runes) > length {
+		return string(runes[:length])
 	}
 	return s
 }
 
 func fitLength(parts []string, sep string) string {
 	s := strings.Join(parts, sep)
-	// 过短补充数字
 	if len(s) < EmailMinLen {
 		s += randDigits(EmailMinLen - len(s))
 	} else if len(s) > EmailMaxLen {
-		// 过长直接截断
-		s = s[:EmailMaxLen]
+		s = safeSlice(s, EmailMaxLen)
 	}
 	return s
 }
 
 // -------------------------
-// 四大邮箱策略 (修复了截取长度和分隔符)
+// 四大邮箱策略 
 // -------------------------
 
 func buildPinyinWord() string {
@@ -126,14 +124,37 @@ func buildPinyinWord() string {
 func buildWordDigits() string {
 	initResources()
 	wd := safeSlice(commonWords[rand.Intn(len(commonWords))], 8)
-	// Python 中这里使用了 rand_sep()
 	return fitLength([]string{wd, randDigits(rand.Intn(3) + 1)}, randSep())
 }
 
+
+// ✨ 修改点：加入 Normalize 和特殊字符清洗
 func buildNameDigits(firstName string) string {
-	name := safeSlice(strings.ToLower(firstName), 8)
-	// Python 中这里也使用了 rand_sep()
+	// 1. 先进行拉丁化 (例如把 "你好" 转成 "Ni Hao", "ü" 转成 "u")
+	normName := v1service.NormalizeToBasicLatin(firstName)
+	
+	// 2. 清除拉丁化后可能出现的空格、连字符等（保证邮箱前缀合法）
+	cleanName := strings.ReplaceAll(normName, " ", "")
+	cleanName = strings.ReplaceAll(cleanName, "-", "")
+	cleanName = strings.ReplaceAll(cleanName, "'", "")
+	
+	// 3. 转小写并安全截取
+	name := safeSlice(strings.ToLower(cleanName), 8)
+	
 	return fitLength([]string{name, randDigits(rand.Intn(3) + 1)}, randSep())
+}
+
+func strictCleanPrefix(s string) string {
+	// 只允许小写字母、数字和三个合法分隔符
+	reg := regexp.MustCompile(`[^a-z0-9._-]`)
+	s = reg.ReplaceAllString(strings.ToLower(s), "")
+	
+	// 防止出现连续的分隔符，比如 a..b 变成 a.b
+	multiSymbolReg := regexp.MustCompile(`[._-]{2,}`)
+	s = multiSymbolReg.ReplaceAllString(s, ".")
+	
+	// 掐头去尾的分隔符
+	return strings.Trim(s, "._-")
 }
 
 // -------------------------
@@ -143,7 +164,7 @@ func buildNameDigits(firstName string) string {
 func GenerateV2Profile(origin, gender, domain string) (string, string, string, string, string, string) {
 	initResources()
 
-	// 1. 获取基础名字
+	// 1. 获取基础名字 (保留原语言用于输出 Profile)
 	generator := namegen.NameGeneratorFromType(origin, gender)
 	firstName, _ := generator.FirstName(gender)
 	lastName, _ := generator.LastName()
@@ -152,14 +173,22 @@ func GenerateV2Profile(origin, gender, domain string) (string, string, string, s
 	var prefix string
 	strategy := rand.Float32()
 	
-	if strategy < 0.30 { // 30% 权重
+	if strategy < 0.30 { 
 		prefix = buildPinyinWord()
-	} else if strategy < 0.60 { // 30% 权重
+	} else if strategy < 0.60 { 
 		prefix = buildWordDigits()
-	} else if strategy < 0.85 { // 25% 权重
-		prefix = buildNameDigits(firstName)
-	} else { // 15% 权重
+	} else if strategy < 0.85 { 
+		prefix = buildNameDigits(firstName) // 这里传入原始 firstName，内部会 normalize
+	} else { 
 		prefix = fitLength([]string{randShortID(rand.Intn(5) + 6)}, "")
+	}
+	prefix = strictCleanPrefix(prefix)
+
+	// ✨ 新增：清洗后可能导致前缀变短（甚至为空），这里做个安全兜底
+	if len(prefix) < EmailMinLen {
+		prefix += randDigits(EmailMinLen - len(prefix))
+	} else if len(prefix) > EmailMaxLen {
+		prefix = safeSlice(prefix, EmailMaxLen)
 	}
 
 	email := fmt.Sprintf("%s@%s", prefix, domain)
@@ -174,5 +203,6 @@ func GenerateV2Profile(origin, gender, domain string) (string, string, string, s
 	// 5. 获取国家名称
 	country := v1service.GetCountryName(origin)
 
+	// 注意：返回的 firstName 和 lastName 依然是原生字符，方便注册填表
 	return email, password, firstName, lastName, country, birthday
 }
